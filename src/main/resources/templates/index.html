@@ -1,18 +1,49 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Tiles</title>
+    <title>Home</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .tile-btn {
+            height: 150px;       /* fixed height */
+            width: 150px;        /* fixed width */
+            display: flex;       /* flex for centering text */
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+        .tile-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body>
-<h1>Select a Tile</h1>
-<div>
-    <a th:href="@{'/publishers/AYUSH'}"><button>AYUSH</button></a>
-    <button>Darpan</button>
-    <button>Prashant</button>
-    <button>Bhuvan</button>
-    <button>Chaitanya</button>
-    <button>Mohit</button>
-    <button>Naman</button>
+<div class="container my-5">
+    <h1 class="mb-4 text-center">Welcome to Book Portal</h1>
+
+    <div class="d-flex flex-wrap justify-content-center gap-4">
+        <button type="button" class="btn btn-primary tile-btn"
+                th:onclick="|window.location.href='@{/publishers/ayush}'|">Ayush</button>
+        <button type="button" class="btn btn-secondary tile-btn"
+                th:onclick="|window.location.href='@{/publishers/prashant}'|">Prashant</button>
+        <button type="button" class="btn btn-success tile-btn"
+                th:onclick="|window.location.href='@{/publishers/chaitanya}'|">Chaitanya</button>
+        <button type="button" class="btn btn-danger tile-btn"
+                th:onclick="|window.location.href='@{/publishers/darpan}'|">Darpan</button>
+        <button type="button" class="btn btn-warning tile-btn"
+                th:onclick="|window.location.href='@{/publishers/bhuvan}'|">Bhuvan</button>
+        <button type="button" class="btn btn-info tile-btn"
+                th:onclick="|window.location.href='@{/publishers/naman}'|">Naman</button>
+        <button type="button" class="btn btn-dark tile-btn"
+                th:onclick="|window.location.href='@{/publishers/mohit}'|">Mohit</button>
+    </div>
 </div>
+
+<!-- Optional: Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

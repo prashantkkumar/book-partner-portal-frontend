@@ -1,6 +1,5 @@
 package com.lms.book_portal_frontend.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PublisherDTO {
-    private Long id;
-    private String name;
-    private String email;
+    private String pubId;
+    private String pubName;
+    private String city;
+    private String state;
+    private String country;
 }
