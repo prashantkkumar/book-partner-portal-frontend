@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Publishers</title>
+</head>
+<body>
+<h2 th:text="'Publisher List for ' + ${name}">Publisher List</h2>
+
+<p th:if="${message}" th:text="${message}" style="color: green;"></p>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="publisher : ${publishers.content}">
+        <td th:text="${publisher.id}"></td>
+        <td th:text="${publisher.name}"></td>
+        <td th:text="${publisher.email}"></td>
+        <td>
+            <a th:href="@{'/publishers/edit/' + ${publisher.id}}">Edit</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Pagination -->
+<div>
+    <a th:if="${!publishers.last}"
+       th:href="@{'/publishers/' + ${name} + '?page=' + ${publishers.number + 1}}">Next</a>
+</div>
+
+<a href="/publishers/add">Add New Publisher</a>
+
+</body>
+</html>
