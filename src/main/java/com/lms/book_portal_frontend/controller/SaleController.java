@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Controller
 @RequestMapping("/sales")
@@ -18,11 +19,12 @@ public class SaleController {
 
     private static final String API_URL = "http://13.233.193.166:9091/api/sales";
 
-    @GetMapping("/{name}")
-    public String getSales(@PathVariable String name, Model model) {
+    @GetMapping("/bhuvan")
+    public String getSales(Model model) {
         SaleDTO[] sales = restTemplate.getForObject(API_URL, SaleDTO[].class);
-        model.addAttribute("sales", Arrays.asList(sales));
-        model.addAttribute("name", name);
+        model.addAttribute("sales", List.of(sales));
+        model.addAttribute("name", "bhuvan");
         return "sales";
     }
+
 }
