@@ -1,35 +1,73 @@
 package com.lms.book_portal_frontend.controller;
 
 import com.lms.book_portal_frontend.dto.PublisherDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 @Controller
-@RequestMapping("/publishers")
+@RequiredArgsConstructor
 public class PublisherController {
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final WebClient webClient = WebClient.create("http://13.233.193.166:9091/api/");
 
-    private static final String BASE_URL = "http://13.233.193.166:9091/api";
+    @GetMapping("/publishers")
+    public String getPublishers(Model model) {
+        List<PublisherDTO> publishers = webClient.get()
+                .uri("/publishers")
+                .retrieve()
+                .bodyToFlux(PublisherDTO.class)
+                .collectList()
+                .block();
 
-    @GetMapping("/ayush")
-    public String getAyush(Model model) {
-        try {
-            PublisherDTO[] response = restTemplate.getForObject(BASE_URL + "/publishers", PublisherDTO[].class);
-            model.addAttribute("publishers", List.of(response)); // Convert array to List
-        } catch (Exception e) {
-            model.addAttribute("error", "Error fetching data: " + e.getMessage());
-            e.printStackTrace();
-            return "error";  // if you have an error.html
-        }
-        model.addAttribute("name", "Ayush");
-        return "publisher-list";  // Thymeleaf will look for publisher-list.html
+        model.addAttribute("publishers", publishers);
+        return "publishers"; // maps to publishers.html
     }
 
+    @GetMapping("/publishers/edit/{id}")
+    public String editForm(@PathVariable String id, Model model) {
+        PublisherDTO publisher = webClient.get()
+                .uri("/publishers/{id}", id)
+                .retrieve()
+                .bodyToMono(PublisherDTO.class)
+                .block();
+
+        model.addAttribute("publisher", publisher);
+        return "edit-publisher"; // form page for edit
+    }
+
+    @PostMapping("/publishers/edit")
+    public String editPublisher(@ModelAttribute PublisherDTO publisher) {
+        webClient.put()
+                .uri("/publishers/{id}", publisher.getPubId())
+                .body(Mono.just(publisher), PublisherDTO.class)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+
+        return "redirect:/publishers";
+    }
+
+    @GetMapping("/publishers/add")
+    public String addForm(Model model) {
+        model.addAttribute("publisher", new PublisherDTO());
+        return "add-publisher"; // form page for add
+    }
+
+    @PostMapping("/publishers/add")
+    public String addPublisher(@ModelAttribute PublisherDTO publisher) {
+        webClient.post()
+                .uri("/publishers")
+                .body(Mono.just(publisher), PublisherDTO.class)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+
+        return "redirect:/publishers";
+    }
 }
