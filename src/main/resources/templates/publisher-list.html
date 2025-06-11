@@ -1,21 +1,31 @@
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>City</th>
-        <th>State</th>
-        <th>Country</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="publisher : ${publishers}">
-        <td th:text="${publisher.pubId}"></td>
-        <td th:text="${publisher.pubName}"></td>
-        <td th:text="${publisher.city}"></td>
-        <td th:text="${publisher.state}"></td>
-        <td th:text="${publisher.country}"></td>
-    </tr>
-
-    </tbody>
-</table>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Publisher List</title>
+</head>
+<body>
+<div>
+    <h2>Publisher List</h2>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Country</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="publisher : ${publishers}">
+            <td th:text="${publisher.pubId}">ID</td>
+            <td th:text="${publisher.pubName}">Name</td>
+            <td th:text="${publisher.city}">City</td>
+            <td th:text="${publisher.state}">State</td>
+            <td th:text="${publisher.country}">Country</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

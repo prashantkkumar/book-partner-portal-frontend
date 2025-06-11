@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Title List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2 class="mb-4">Titles - <span th:text="${name}">User</span></h2>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+        <tr>
+            <th>Title ID</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Price</th>
+            <th>Advance</th>
+            <th>Royalty</th>
+            <th>YTD Sales</th>
+            <th>Notes</th>
+            <th>Publication Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="title : ${titles}">
+            <td th:text="${title.titleId}">TID</td>
+            <td th:text="${title.title}">Title</td>
+            <td th:text="${title.type}">Type</td>
+            <td th:text="${title.price}">Price</td>
+            <td th:text="${title.advance}">Advance</td>
+            <td th:text="${title.royalty}">Royalty</td>
+            <td th:text="${title.ytdSales}">YTD</td>
+            <td th:text="${title.notes}">Notes</td>
+            <td th:text="${#temporals.format(title.pubdate, 'yyyy-MM-dd')}">Date</td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(titles)}">
+            <td colspan="9" class="text-center">No titles available</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
