@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employee List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-4">
+    <h2 class="text-center">Employee List</h2>
+
+    <table class="table table-bordered table-striped mt-4">
+        <thead class="table-primary">
+        <tr>
+            <th>Employee ID</th>
+            <th>Full Name</th>
+            <th>Job Level</th>
+            <th>Hire Date</th>
+            <!--            <th>Job ID</th>-->
+            <!--            <th>Publisher ID</th>-->
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="employee : ${employees}">
+            <td th:text="${employee.empId}">E001</td>
+            <td th:text="${employee.fname + ' ' + employee.minit + ' ' + employee.lname}">John A Doe</td>
+            <td th:text="${employee.jobLvl}">3</td>
+            <td th:text="${#temporals.format(employee.hireDate, 'yyyy-MM-dd')}">2025-05-01</td>
+            <!--            <td th:text="${employee.jobId}">JOB123</td>-->
+            <!--            <td th:text="${employee.pubId}">PUB001</td>-->
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
