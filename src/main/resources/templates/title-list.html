@@ -1,45 +1,291 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Title List</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Titles</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        th.sortable:hover {
+            background-color: #343a40cc;
+            color: white;
+        }
+        th.sortable::after {
+            content: ' \25B4'; /* triangle up */
+            font-size: 0.6em;
+            opacity: 0.3;
+            margin-left: 5px;
+        }
+        th.sortable.desc::after {
+            content: ' \25BE'; /* triangle down */
+            opacity: 0.7;
+        }
+        th.sortable.asc::after {
+            content: ' \25B4'; /* triangle up */
+            opacity: 0.7;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-light">
 <div class="container mt-5">
-    <h2 class="mb-4">Titles - <span th:text="${name}">User</span></h2>
+    <h2 class="mb-4 text-center">Title List - <span th:text="${name}">User</span></h2>
 
-    <table class="table table-bordered table-striped">
+    <div class="pagination-controls mb-3">
+        <div class="d-flex align-items-center gap-3">
+            <label for="searchInput" class="mb-0">Search:</label>
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by Title, Type, Notes" style="width: 250px;">
+        </div>
+
+        <div>
+            <span id="entriesInfo" class="me-3"></span>
+
+            <label for="pageSize">Show entries:</label>
+            <select id="pageSize" class="form-select d-inline-block w-auto ms-2">
+                <option value="5" selected>5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+
+            <a href="/titles/add" class="btn btn-primary ms-3">+ Add New Title</a>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-hover bg-white shadow-sm">
         <thead class="table-dark">
         <tr>
-            <th>Title ID</th>
-            <th>Title</th>
-            <th>Type</th>
-            <th>Price</th>
-            <th>Advance</th>
-            <th>Royalty</th>
-            <th>YTD Sales</th>
-            <th>Notes</th>
-            <th>Publication Date</th>
+            <th class="sortable" data-key="titleId">Title ID</th>
+            <th class="sortable" data-key="title">Title</th>
+            <th class="sortable" data-key="type">Type</th>
+            <th class="sortable" data-key="price">Price</th>
+            <th class="sortable" data-key="advance">Advance</th>
+            <th class="sortable" data-key="royalty">Royalty</th>
+            <th class="sortable" data-key="ytdSales">YTD Sales</th>
+            <th class="sortable" data-key="notes">Notes</th>
+            <th class="sortable" data-key="pubdate">Publication Date</th>
+            <th>Actions</th>
         </tr>
         </thead>
-        <tbody>
-        <tr th:each="title : ${titles}">
-            <td th:text="${title.titleId}">TID</td>
-            <td th:text="${title.title}">Title</td>
-            <td th:text="${title.type}">Type</td>
-            <td th:text="${title.price}">Price</td>
-            <td th:text="${title.advance}">Advance</td>
-            <td th:text="${title.royalty}">Royalty</td>
-            <td th:text="${title.ytdSales}">YTD</td>
-            <td th:text="${title.notes}">Notes</td>
-            <td th:text="${#temporals.format(title.pubdate, 'yyyy-MM-dd')}">Date</td>
-        </tr>
-
-        <tr th:if="${#lists.isEmpty(titles)}">
-            <td colspan="9" class="text-center">No titles available</td>
-        </tr>
+        <tbody id="titleTableBody">
+        <!-- Table rows inserted here -->
         </tbody>
     </table>
+
+    <nav>
+        <ul class="pagination justify-content-center" id="pagination"></ul>
+    </nav>
 </div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var titles = /*[[${titles}]]*/ [];
+    /*]]>*/
+</script>
+
+<script>
+    const tableBody = document.getElementById('titleTableBody');
+    const pagination = document.getElementById('pagination');
+    const pageSizeSelect = document.getElementById('pageSize');
+    const searchInput = document.getElementById('searchInput');
+    const entriesInfo = document.getElementById('entriesInfo');
+    const headers = document.querySelectorAll('th.sortable');
+
+    let currentPage = 1;
+    let pageSize = parseInt(pageSizeSelect.value);
+    let filteredTitles = [...titles];
+    let sortKey = null;
+    let sortAsc = true;
+
+    function formatDate(date) {
+        if (!date) return '';
+        const d = new Date(date);
+        return d.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    }
+
+    function updateEntriesInfo() {
+        const start = filteredTitles.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+        const end = Math.min(currentPage * pageSize, filteredTitles.length);
+        entriesInfo.textContent = `Showing ${start} to ${end} of ${filteredTitles.length} entries`;
+    }
+
+    function renderTable() {
+        tableBody.innerHTML = '';
+
+        const start = (currentPage - 1) * pageSize;
+        const pageItems = filteredTitles.slice(start, start + pageSize);
+
+        if (pageItems.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td colspan="10" class="text-center">No data available</td>`;
+            tableBody.appendChild(tr);
+        } else {
+            pageItems.forEach(title => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${title.titleId}</td>
+                    <td>${title.title}</td>
+                    <td>${title.type || ''}</td>
+                    <td>${title.price ? title.price.toFixed(2) : ''}</td>
+                    <td>${title.advance ? title.advance.toFixed(2) : ''}</td>
+                    <td>${title.royalty || ''}</td>
+                    <td>${title.ytdSales || ''}</td>
+                    <td>${title.notes || ''}</td>
+                    <td>${formatDate(title.pubdate)}</td>
+                    <td>
+                        <a href="/titles/edit/${title.titleId}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        updateEntriesInfo();
+        renderPagination();
+    }
+
+    function renderPagination() {
+        pagination.innerHTML = '';
+        const totalPages = Math.ceil(filteredTitles.length / pageSize);
+        if (totalPages <= 1) return;
+
+        // Prev Button
+        const prevLi = document.createElement('li');
+        prevLi.classList.add('page-item');
+        if (currentPage === 1) prevLi.classList.add('disabled');
+        const prevLink = document.createElement('a');
+        prevLink.classList.add('page-link');
+        prevLink.href = '#';
+        prevLink.textContent = 'Previous';
+        prevLink.addEventListener('click', e => {
+            e.preventDefault();
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        });
+        prevLi.appendChild(prevLink);
+        pagination.appendChild(prevLi);
+
+        // Page numbers - limit to max 7 pages for UI neatness
+        let startPage = Math.max(1, currentPage - 3);
+        let endPage = Math.min(totalPages, currentPage + 3);
+
+        if (endPage - startPage < 6) {
+            if (startPage === 1) {
+                endPage = Math.min(totalPages, startPage + 6);
+            } else if (endPage === totalPages) {
+                startPage = Math.max(1, endPage - 6);
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const li = document.createElement('li');
+            li.classList.add('page-item');
+            if (i === currentPage) li.classList.add('active');
+            const link = document.createElement('a');
+            link.classList.add('page-link');
+            link.href = '#';
+            link.textContent = i;
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                currentPage = i;
+                renderTable();
+            });
+            li.appendChild(link);
+            pagination.appendChild(li);
+        }
+
+        // Next Button
+        const nextLi = document.createElement('li');
+        nextLi.classList.add('page-item');
+        if (currentPage === totalPages) nextLi.classList.add('disabled');
+        const nextLink = document.createElement('a');
+        nextLink.classList.add('page-link');
+        nextLink.href = '#';
+        nextLink.textContent = 'Next';
+        nextLink.addEventListener('click', e => {
+            e.preventDefault();
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        });
+        nextLi.appendChild(nextLink);
+        pagination.appendChild(nextLi);
+    }
+
+    function applySearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        filteredTitles = titles.filter(t =>
+            t.title.toLowerCase().includes(searchTerm) ||
+            (t.type && t.type.toLowerCase().includes(searchTerm)) ||
+            (t.notes && t.notes.toLowerCase().includes(searchTerm))
+        );
+        currentPage = 1;
+        applySort();
+        renderTable();
+    }
+
+    function applySort() {
+        if (!sortKey) return;
+        filteredTitles.sort((a, b) => {
+            let valA = a[sortKey] || '';
+            let valB = b[sortKey] || '';
+            if (sortKey === 'price' || sortKey === 'advance' || sortKey === 'royalty' || sortKey === 'ytdSales') {
+                valA = parseFloat(valA) || 0;
+                valB = parseFloat(valB) || 0;
+            } else if (sortKey === 'pubdate') {
+                valA = valA ? new Date(valA).getTime() : 0;
+                valB = valB ? new Date(valB).getTime() : 0;
+            } else {
+                valA = valA.toString().toLowerCase();
+                valB = valB.toString().toLowerCase();
+            }
+            if (valA < valB) return sortAsc ? -1 : 1;
+            if (valA > valB) return sortAsc ? 1 : -1;
+            return 0;
+        });
+    }
+
+    pageSizeSelect.addEventListener('change', () => {
+        pageSize = parseInt(pageSizeSelect.value);
+        currentPage = 1;
+        renderTable();
+    });
+
+    searchInput.addEventListener('input', () => {
+        applySearch();
+    });
+
+    headers.forEach(header => {
+        header.addEventListener('click', () => {
+            const key = header.dataset.key;
+            if (sortKey === key) {
+                sortAsc = !sortAsc;
+            } else {
+                sortKey = key;
+                sortAsc = true;
+            }
+
+            headers.forEach(h => h.classList.remove('asc', 'desc'));
+            header.classList.add(sortAsc ? 'asc' : 'desc');
+
+            applySort();
+            renderTable();
+        });
+    });
+
+    // Initial render
+    renderTable();
+</script>
 </body>
 </html>
