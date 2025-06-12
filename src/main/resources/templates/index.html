@@ -1,49 +1,140 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Home</title>
-    <!-- Bootstrap CSS CDN -->
+    <meta charset="UTF-8">
+    <title>Book Portal</title>
+
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons (for visual appeal) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #dfe9f3, #ffffff);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .portal-wrapper {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 1.5rem;
+            padding: 3rem 2rem;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .portal-wrapper h1 {
+            font-weight: 600;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #343a40;
+        }
+
         .tile-btn {
-            height: 150px;       /* fixed height */
-            width: 150px;        /* fixed width */
-            display: flex;       /* flex for centering text */
+            height: 150px;
+            width: 150px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 1.25rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease;
+            border-radius: 1rem;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            color: #fff;
+            border: none;
         }
+
+        .tile-btn i {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
         .tile-btn:hover {
-            transform: scale(1.05);
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-ayush { background: linear-gradient(135deg, #007bff, #339af0); }
+        .btn-prashant { background: linear-gradient(135deg, #6c757d, #adb5bd); }
+        .btn-chaitanya { background: linear-gradient(135deg, #198754, #51cf66); }
+        .btn-darpan { background: linear-gradient(135deg, #dc3545, #ff6b6b); }
+        .btn-bhuvan { background: linear-gradient(135deg, #ffc107, #ffe066); color: #212529; }
+        .btn-naman { background: linear-gradient(135deg, #0dcaf0, #66d9e8); color: #212529; }
+        .btn-mohit { background: linear-gradient(135deg, #212529, #495057); }
+
+        @media (max-width: 768px) {
+            .tile-btn {
+                width: 120px;
+                height: 120px;
+                font-size: 0.95rem;
+            }
         }
     </style>
 </head>
 <body>
-<div class="container my-5">
-    <h1 class="mb-4 text-center">Welcome to Book Portal</h1>
+
+<div class="portal-wrapper text-center">
+    <h1><i class="bi bi-book-half"></i> Welcome to Book Portal</h1>
 
     <div class="d-flex flex-wrap justify-content-center gap-4">
-        <button type="button" class="btn btn-primary tile-btn"
-                th:onclick="|window.location.href='@{/publishers/ayush}'|">Ayush</button>
-        <button type="button" class="btn btn-secondary tile-btn"
-                th:onclick="|window.location.href='@{/titles/prashant}'|">Prashant</button>
-        <button type="button" class="btn btn-success tile-btn"
-                th:onclick="|window.location.href='@{/employee/chaitanya}'|">Chaitanya</button>
-        <button type="button" class="btn btn-danger tile-btn"
-                th:onclick="|window.location.href='@{/authors}'|">Darpan</button>
-        <button type="button" class="btn btn-warning tile-btn"
-                th:onclick="|window.location.href='@{/sales/bhuvan}'|">Bhuvan</button>
-        <button type="button" class="btn btn-info tile-btn"
-                th:onclick="|window.location.href='@{/store/naman}'|">Naman</button>
-        <button type="button" class="btn btn-dark tile-btn"
-                th:onclick="|window.location.href='@{/job/mohit}'|">Mohit</button>
+        <button class="tile-btn btn-ayush"
+                th:onclick="|window.location.href='@{/publishers}'|">
+            <i class="bi bi-person-badge"></i>
+            Ayush
+        </button>
+
+        <button class="tile-btn btn-prashant"
+                th:onclick="|window.location.href='@{/titles}'|">
+            <i class="bi bi-journal-bookmark"></i>
+            Prashant
+        </button>
+
+        <button class="tile-btn btn-chaitanya"
+                th:onclick="|window.location.href='@{/employee/chaitanya}'|">
+            <i class="bi bi-people"></i>
+            Chaitanya
+        </button>
+
+        <button class="tile-btn btn-darpan"
+                th:onclick="|window.location.href='@{/authors}'|">
+            <i class="bi bi-pencil-square"></i>
+            Darpan
+        </button>
+
+        <button class="tile-btn btn-bhuvan"
+                th:onclick="|window.location.href='@{/sales/bhuvan}'|">
+            <i class="bi bi-bar-chart-line"></i>
+            Bhuvan
+        </button>
+
+        <button class="tile-btn btn-naman"
+                th:onclick="|window.location.href='@{/store/naman}'|">
+            <i class="bi bi-shop"></i>
+            Naman
+        </button>
+
+        <button class="tile-btn btn-mohit"
+                th:onclick="|window.location.href='@{/job/mohit}'|">
+            <i class="bi bi-briefcase-fill"></i>
+            Mohit
+        </button>
     </div>
 </div>
 
-<!-- Optional: Bootstrap JS Bundle with Popper -->
+<!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

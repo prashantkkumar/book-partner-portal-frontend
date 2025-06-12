@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Add New Job</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+      <h4 class="mb-0">Add New Job</h4>
+    </div>
+    <div class="card-body">
+
+      <form th:action="@{/jobs}" method="post" th:object="${job}" class="border p-4 rounded bg-white shadow-sm">
+
+        <div class="mb-3">
+          <label for="id" class="form-label">Enter Id</label>
+          <input type="number" class="form-control" th:field="*{id}" id="id" required/>
+        </div>
+        <div class="mb-3">
+          <label for="jobDesc" class="form-label">Job Description</label>
+          <input type="text" th:field="*{jobDesc}" id="jobDesc" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+          <label for="minLvl" class="form-label">Minimum Level</label>
+          <input type="number" th:field="*{minLvl}" id="minLvl" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+          <label for="maxLvl" class="form-label">Maximum Level</label>
+          <input type="number" th:field="*{maxLvl}" id="maxLvl" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-success">Save Job</button>
+        <a th:href="@{/job/mohit}" class="btn btn-secondary ms-2">Cancel</a>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
