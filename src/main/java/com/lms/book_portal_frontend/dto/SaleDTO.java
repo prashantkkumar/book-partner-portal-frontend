@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -12,7 +13,7 @@ import java.time.Instant;
 public class SaleDTO {
     private String storId;
     private String titleId;
-    private Instant ordDate;
+    private LocalDate ordDate;
     private Short qty;
     private String payterms;
 }
