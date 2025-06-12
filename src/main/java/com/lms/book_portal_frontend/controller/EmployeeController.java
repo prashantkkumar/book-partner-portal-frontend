@@ -17,7 +17,7 @@ public class EmployeeController {
 
     private final WebClient webClient = WebClient.create("http://13.233.193.166:9091/api");
 
-    @GetMapping("/employees/chaitanya")
+    @GetMapping("/employee/chaitanya")
     public String getEmployees(Model model) {
         List<EmployeeDTO> employees = webClient.get()
                 .uri("/employees")
