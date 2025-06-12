@@ -6,10 +6,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -18,18 +18,58 @@ public class PublisherController {
     private final WebClient webClient = WebClient.create("http://13.233.193.166:9091/api");
 
     @GetMapping("/publishers")
-    public String getPublishers(Model model) {
-        List<PublisherDTO> publishers = webClient.get()
-                .uri("/publishers")
-                .retrieve()
-                .bodyToFlux(PublisherDTO.class)
-                .collectList()
-                .block();
+    public String getPublishers(Model model, @RequestParam(value = "keyword", required = false) String keyword) {
+        String uri = "/publishers";
+        if (keyword != null && !keyword.isEmpty()) {
+            String encodedKeyword = java.net.URLEncoder.encode(keyword, java.nio.charset.StandardCharsets.UTF_8);
+            uri += "?keyword=" + encodedKeyword;
+            System.out.println("Searching with URI: http://13.233.193.166:9091/api" + uri);
+        }
+
+        List<PublisherDTO> publishers;
+        try {
+            publishers = webClient.get()
+                    .uri(uri)
+                    .header("Accept", "application/json")
+                    .retrieve()
+                    .bodyToFlux(PublisherDTO.class)
+                    .collectList()
+                    .block();
+            System.out.println("Publishers fetched: " + publishers);
+
+            // Client-side filtering since the backend isn't filtering
+            if (keyword != null && !keyword.isEmpty()) {
+                String keywordLower = keyword.toLowerCase();
+                // Normalize "US" to "USA" for consistency
+                if (keywordLower.equals("us")) {
+                    keywordLower = "usa";
+                }
+                final String finalKeyword = keywordLower;
+                publishers = publishers.stream()
+                        .filter(p -> {
+                            String country = p.getCountry() != null ? p.getCountry().toLowerCase() : "";
+                            if (country.equals("us")) {
+                                country = "usa"; // Normalize "US" to "USA"
+                            }
+                            return (p.getPubName() != null && p.getPubName().toLowerCase().contains(finalKeyword)) ||
+                                    (p.getCity() != null && p.getCity().toLowerCase().contains(finalKeyword)) ||
+                                    (country.contains(finalKeyword));
+                        })
+                        .collect(Collectors.toList());
+                System.out.println("Publishers after client-side filtering: " + publishers);
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching publishers: " + e.getMessage());
+            model.addAttribute("error", "Failed to fetch publishers. Please try again later.");
+            publishers = List.of();
+        }
 
         model.addAttribute("publishers", publishers);
+        model.addAttribute("keyword", keyword);
         return "publishers";
     }
 
+    // Rest of the controller remains unchanged
     @GetMapping("/publishers/edit/{id}")
     public String editForm(@PathVariable String id, Model model) {
         PublisherDTO publisher = webClient.get()
@@ -74,13 +114,7 @@ public class PublisherController {
         } catch (Exception e) {
             System.err.println("Failed to add publisher: " + e.getMessage());
             e.printStackTrace();
-            // Optionally, add an error attribute to the model and return to form page
-            // model.addAttribute("error", "Failed to add publisher");
-            // return "add-publisher";
         }
         return "redirect:/publishers";
     }
-
-
-
 }

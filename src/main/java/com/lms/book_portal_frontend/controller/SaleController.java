@@ -7,6 +7,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Comparator;
+import java.util.stream.Collectors;
 import java.util.List;
 
 @Controller
@@ -18,10 +20,15 @@ public class SaleController {
 
     private static final String API_BASE_URL = "http://13.233.193.166:9091/api/sales";
 
+
     @GetMapping("/bhuvan")
     public String getSales(Model model) {
-        SaleDTO[] sales = restTemplate.getForObject(API_BASE_URL, SaleDTO[].class);
-        model.addAttribute("sales", List.of(sales));
+        SaleDTO[] salesArray = restTemplate.getForObject(API_BASE_URL, SaleDTO[].class);
+        List<SaleDTO> sortedSales = List.of(salesArray).stream()
+                .sorted(Comparator.comparing(SaleDTO::getOrdDate))
+                .collect(Collectors.toList());
+
+        model.addAttribute("sales", sortedSales);
         model.addAttribute("name", "bhuvan");
         return "sales";
     }
