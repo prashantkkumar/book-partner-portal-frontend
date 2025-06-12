@@ -101,4 +101,26 @@ public class JobController {
 
         return "redirect:/job/mohit";
     }
+
+    //  for post add new data
+
+    @GetMapping("/jobs/new")
+    public String showAddJobForm(Model model) {
+        model.addAttribute("job", new JobDto()); // Empty form-binding object
+        return "add-job"; // HTML page name
+    }
+    @PostMapping("/jobs")
+    public String saveJob(@ModelAttribute("job") JobDto jobDto, RedirectAttributes redirectAttributes) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<JobDto> request = new HttpEntity<>(jobDto, headers);
+            restTemplate.postForEntity(apiUrl, request, String.class);
+
+            redirectAttributes.addFlashAttribute("message", "Job added successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to add job.");
+        }
+        return "redirect:/job/mohit";
+    }
 }
