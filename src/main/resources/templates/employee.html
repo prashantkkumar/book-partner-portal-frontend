@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employees</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .pagination-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        th.sortable:hover {
+            background-color: #343a40cc;
+            color: white;
+        }
+        th.sortable::after {
+            content: ' \25B4'; /* triangle up */
+            font-size: 0.6em;
+            opacity: 0.3;
+            margin-left: 5px;
+        }
+        th.sortable.desc::after {
+            content: ' \25BE'; /* triangle down */
+            opacity: 0.7;
+        }
+        th.sortable.asc::after {
+            content: ' \25B4'; /* triangle up */
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Employee List</h2>
+
+    <div class="pagination-controls mb-3">
+        <div class="d-flex align-items-center gap-3">
+            <label for="searchInput" class="mb-0">Search:</label>
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by Name, Job Level, Hire Date" style="width: 250px;">
+        </div>
+
+        <div>
+            <span id="entriesInfo" class="me-3"></span>
+
+            <label for="pageSize">Show entries:</label>
+            <select id="pageSize" class="form-select d-inline-block w-auto ms-2">
+                <option value="5" selected>5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+
+            <a href="/employees/add" class="btn btn-primary ms-3">+ Add New Employee</a>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-hover bg-white shadow-sm">
+        <thead class="table-dark">
+        <tr>
+            <th class="sortable" data-key="empId">ID</th>
+            <th class="sortable" data-key="fullName">Name</th>
+            <th class="sortable" data-key="jobLvl">Job Level</th>
+            <th class="sortable" data-key="hireDate">Hire Date</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="employeeTableBody">
+        <!-- Table rows inserted here -->
+        </tbody>
+    </table>
+
+    <nav>
+        <ul class="pagination justify-content-center" id="pagination"></ul>
+    </nav>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var employees = /*[[${employees}]]*/ [];
+    /*]]>*/
+</script>
+
+<script>
+    // Debug: Log employees data to console
+    console.log('Employees data:', employees);
+
+    const tableBody = document.getElementById('employeeTableBody');
+    const pagination = document.getElementById('pagination');
+    const pageSizeSelect = document.getElementById('pageSize');
+    const searchInput = document.getElementById('searchInput');
+    const entriesInfo = document.getElementById('entriesInfo');
+    const headers = document.querySelectorAll('th.sortable');
+
+    let currentPage = 1;
+    let pageSize = parseInt(pageSizeSelect.value);
+    let filteredEmployees = [];
+    let sortKey = null;
+    let sortAsc = true;
+
+    // Initialize employees array if undefined or null
+    if (!Array.isArray(employees)) {
+        console.warn('Employees data is not an array or is undefined. Initializing as empty array.');
+        employees = [];
+    }
+
+    // Add fullName property to each employee for searching and sorting
+    employees.forEach(e => {
+        try {
+            e.fullName = `${e.fname || ''}${e.minit ? ' ' + e.minit + '.' : ''} ${e.lname || ''}`.trim();
+        } catch (error) {
+            console.error('Error processing employee:', e, error);
+            e.fullName = 'Unknown';
+        }
+    });
+
+    // Initialize filteredEmployees
+    filteredEmployees = [...employees];
+
+    function formatDate(date) {
+        if (!date) return 'N/A';
+        try {
+            const d = new Date(date);
+            if (isNaN(d.getTime())) return 'Invalid Date';
+            return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        } catch (error) {
+            console.error('Error formatting date:', date, error);
+            return 'N/A';
+        }
+    }
+
+    function updateEntriesInfo() {
+        const start = filteredEmployees.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+        const end = Math.min(currentPage * pageSize, filteredEmployees.length);
+        entriesInfo.textContent = `Showing ${start} to ${end} of ${filteredEmployees.length} entries`;
+    }
+
+    function renderTable() {
+        tableBody.innerHTML = '';
+
+        const start = (currentPage - 1) * pageSize;
+        const pageItems = filteredEmployees.slice(start, start + pageSize);
+
+        if (pageItems.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td colspan="5" class="text-center">No data available</td>`;
+            tableBody.appendChild(tr);
+        } else {
+            pageItems.forEach(employee => {
+                try {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${employee.empId || 'N/A'}</td>
+                        <td>${employee.fullName || 'N/A'}</td>
+                        <td>${employee.jobLvl != null ? employee.jobLvl : 'N/A'}</td>
+                        <td>${formatDate(employee.hireDate)}</td>
+                        <td>
+                            <a href="/employees/edit/${employee.empId || ''}" class="btn btn-sm btn-outline-primary ${!employee.empId ? 'disabled' : ''}">Edit</a>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                } catch (error) {
+                    console.error('Error rendering employee:', employee, error);
+                }
+            });
+        }
+
+        updateEntriesInfo();
+        renderPagination();
+    }
+
+    function renderPagination() {
+        pagination.innerHTML = '';
+        const totalPages = Math.ceil(filteredEmployees.length / pageSize);
+        if (totalPages <= 1) return;
+
+        // Prev Button
+        const prevLi = document.createElement('li');
+        prevLi.classList.add('page-item');
+        if (currentPage === 1) prevLi.classList.add('disabled');
+        const prevLink = document.createElement('a');
+        prevLink.classList.add('page-link');
+        prevLink.href = '#';
+        prevLink.textContent = 'Previous';
+        prevLink.addEventListener('click', e => {
+            e.preventDefault();
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        });
+        prevLi.appendChild(prevLink);
+        pagination.appendChild(prevLi);
+
+        // Page numbers - limit to max 7 pages for UI neatness
+        let startPage = Math.max(1, currentPage - 3);
+        let endPage = Math.min(totalPages, currentPage + 3);
+
+        if (endPage - startPage < 6) {
+            if (startPage === 1) {
+                endPage = Math.min(totalPages, startPage + 6);
+            } else if (endPage === totalPages) {
+                startPage = Math.max(1, endPage - 6);
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const li = document.createElement('li');
+            li.classList.add('page-item');
+            if (i === currentPage) li.classList.add('active');
+            const link = document.createElement('a');
+            link.classList.add('page-link');
+            link.href = '#';
+            link.textContent = i;
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                currentPage = i;
+                renderTable();
+            });
+            li.appendChild(link);
+            pagination.appendChild(li);
+        }
+
+        // Next Button
+        const nextLi = document.createElement('li');
+        nextLi.classList.add('page-item');
+        if (currentPage === totalPages) nextLi.classList.add('disabled');
+        const nextLink = document.createElement('a');
+        nextLink.classList.add('page-link');
+        nextLink.href = '#';
+        nextLink.textContent = 'Next';
+        nextLink.addEventListener('click', e => {
+            e.preventDefault();
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        });
+        nextLi.appendChild(nextLink);
+        pagination.appendChild(nextLi)
+
+    }
+
+    function applySearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        filteredEmployees = employees.filter(e => {
+            try {
+                return (
+                    (e.fullName || '').toLowerCase().includes(searchTerm) ||
+                    (e.jobLvl != null ? e.jobLvl.toString() : '').toLowerCase().includes(searchTerm) ||
+                    (e.hireDate ? formatDate(e.hireDate) : '').toLowerCase().includes(searchTerm)
+                );
+            } catch (error) {
+                console.error('Error filtering employee:', e, error);
+                return false;
+            }
+        });
+        currentPage = 1;
+        applySort();
+        renderTable();
+    }
+
+    function applySort() {
+        if (!sortKey) return;
+        filteredEmployees.sort((a, b) => {
+            try {
+                let valA = a[sortKey] || '';
+                let valB = b[sortKey] || '';
+                if (sortKey === 'hireDate') {
+                    valA = valA ? new Date(valA).getTime() : 0;
+                    valB = valB ? new Date(valB).getTime() : 0;
+                } else {
+                    valA = valA.toString().toLowerCase();
+                    valB = valB.toString().toLowerCase();
+                }
+                if (valA < valB) return sortAsc ? -1 : 1;
+                if (valA > valB) return sortAsc ? 1 : -1;
+                return 0;
+            } catch (error) {
+                console.error('Error sorting employees:', a, b, error);
+                return 0;
+            }
+        });
+    }
+
+    pageSizeSelect.addEventListener('change', () => {
+        pageSize = parseInt(pageSizeSelect.value);
+        currentPage = 1;
+        renderTable();
+    });
+
+    searchInput.addEventListener('input', () => {
+        applySearch();
+    });
+
+    headers.forEach(header => {
+        header.addEventListener('click', () => {
+            const key = header.dataset.key;
+            if (sortKey === key) {
+                sortAsc = !sortAsc;
+            } else {
+                sortKey = key;
+                sortAsc = true;
+            }
+
+            headers.forEach(h => h.classList.remove('asc', 'desc'));
+            header.classList.add(sortAsc ? 'asc' : 'desc');
+
+            applySort();
+            renderTable();
+        });
+    });
+
+    // Initial render
+    renderTable();
+</script>
+
+</body>
+</html>
