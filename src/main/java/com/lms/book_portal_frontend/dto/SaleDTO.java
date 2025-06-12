@@ -10,6 +10,8 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SaleDTO {
+    private String storId;
+    private String titleId;
     private Instant ordDate;
     private Short qty;
     private String payterms;
