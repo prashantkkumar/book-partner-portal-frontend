@@ -2,38 +2,107 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Store List</title>
-    <!-- Bootstrap CSS CDN -->
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="container my-5">
-<h2 class="text-primary mb-4">Store Information</h2>
+    <style>
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
 
-<div class="table-responsive">
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-        <tr>
-            <th>Store ID</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>City</th>
-            <th>State</th>
-            <th>ZIP</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="store : ${stores}">
-            <td th:text="${store.storId}">Store ID</td>
-            <td th:text="${store.storName}">Name</td>
-            <td th:text="${store.storAddress}">Address</td>
-            <td th:text="${store.city}">City</td>
-            <td th:text="${store.state}">State</td>
-            <td th:text="${store.zip}">ZIP</td>
-        </tr>
-        </tbody>
-    </table>
+        th.sortable:hover {
+            background-color: #343a40cc;
+            color: white;
+        }
+
+        th.sortable::after {
+            content: ' \25B4'; /* triangle up */
+            font-size: 0.6em;
+            opacity: 0.3;
+            margin-left: 5px;
+        }
+
+        th.sortable.asc::after {
+            content: ' \25B4'; /* triangle up */
+            opacity: 0.7;
+        }
+
+        th.sortable.desc::after {
+            content: ' \25BE'; /* triangle down */
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary mb-0">Store Information</h2>
+        <a href="/stores/add" class="btn btn-primary">+ Add New Store</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover bg-white shadow-sm">
+            <thead class="table-dark">
+            <tr>
+                <th class="sortable" data-key="storId">Store ID</th>
+                <th class="sortable" data-key="storName">Name</th>
+                <th class="sortable" data-key="storAddress">Address</th>
+                <th class="sortable" data-key="city">City</th>
+                <th class="sortable" data-key="state">State</th>
+                <th class="sortable" data-key="zip">ZIP</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="store : ${stores}">
+                <td th:text="${store.storId}">1</td>
+                <td th:text="${store.storName}">Store Name</td>
+                <td th:text="${store.storAddress}">Address</td>
+                <td th:text="${store.city}">City</td>
+                <td th:text="${store.state}">State</td>
+                <td th:text="${store.zip}">ZIP</td>
+                <td>
+                    <a th:href="@{'/store/edit/' + ${store.storId}}" class="btn btn-primary">Edit</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<!-- Optional: Bootstrap JS (for interactive components) -->
+<script>
+    const headers = document.querySelectorAll('th.sortable');
+    let sortKey = null;
+    let sortAsc = true;
+
+    headers.forEach(header => {
+        header.addEventListener('click', () => {
+            const key = header.dataset.key;
+            if (sortKey === key) {
+                sortAsc = !sortAsc;
+            } else {
+                sortKey = key;
+                sortAsc = true;
+            }
+
+            headers.forEach(h => h.classList.remove('asc', 'desc'));
+            header.classList.add(sortAsc ? 'asc' : 'desc');
+
+            const rows = Array.from(document.querySelectorAll('tbody tr'));
+            rows.sort((a, b) => {
+                const valA = a.querySelector(`td:nth-child(${header.cellIndex + 1})`).textContent.trim().toLowerCase();
+                const valB = b.querySelector(`td:nth-child(${header.cellIndex + 1})`).textContent.trim().toLowerCase();
+                return (valA < valB ? -1 : valA > valB ? 1 : 0) * (sortAsc ? 1 : -1);
+            });
+
+            const tbody = document.querySelector('tbody');
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    });
+</script>
+
+<!-- Bootstrap JS Bundle (optional) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
