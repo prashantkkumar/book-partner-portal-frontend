@@ -77,6 +77,25 @@ public class StoreController {
         return "redirect:/store/naman"; // redirect to store list
     }
 
+    @GetMapping("/store/add")
+    public String showAddForm(Model model) {
+        model.addAttribute("store", new StoreDto()); // empty form
+        return "add-store";
+    }
+
+    @PostMapping("/store/save")
+    public String saveStore(@ModelAttribute StoreDto storeDto) {
+        try {
+            String apiUrl = "http://13.233.193.166:9091/api/stores";
+            restTemplate.postForObject(apiUrl, storeDto, StoreDto.class);
+            return "redirect:/store/naman"; // Redirect to the store list
+        } catch (Exception e) {
+            e.printStackTrace(); // See error in console
+            return "error"; // You can create error.html for friendly error page
+        }
+    }
+
+
 
 
 }
