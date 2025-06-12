@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PublisherController {
 
-    private final WebClient webClient = WebClient.create("http://13.233.193.166:9091/api/");
+    private final WebClient webClient = WebClient.create("http://13.233.193.166:9091/api");
 
     @GetMapping("/publishers")
     public String getPublishers(Model model) {
@@ -26,7 +27,7 @@ public class PublisherController {
                 .block();
 
         model.addAttribute("publishers", publishers);
-        return "publishers"; // maps to publishers.html
+        return "publishers";
     }
 
     @GetMapping("/publishers/edit/{id}")
@@ -38,7 +39,7 @@ public class PublisherController {
                 .block();
 
         model.addAttribute("publisher", publisher);
-        return "edit-publisher"; // form page for edit
+        return "edit-publisher";
     }
 
     @PostMapping("/publishers/edit")
@@ -56,18 +57,30 @@ public class PublisherController {
     @GetMapping("/publishers/add")
     public String addForm(Model model) {
         model.addAttribute("publisher", new PublisherDTO());
-        return "add-publisher"; // form page for add
+        return "add-publisher";
     }
 
     @PostMapping("/publishers/add")
     public String addPublisher(@ModelAttribute PublisherDTO publisher) {
-        webClient.post()
-                .uri("/publishers")
-                .body(Mono.just(publisher), PublisherDTO.class)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .block();
-
+        System.out.println("Adding publisher: " + publisher);
+        try {
+            webClient.post()
+                    .uri("/publishers")
+                    .body(Mono.just(publisher), PublisherDTO.class)
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .block();
+            System.out.println("Publisher added successfully");
+        } catch (Exception e) {
+            System.err.println("Failed to add publisher: " + e.getMessage());
+            e.printStackTrace();
+            // Optionally, add an error attribute to the model and return to form page
+            // model.addAttribute("error", "Failed to add publisher");
+            // return "add-publisher";
+        }
         return "redirect:/publishers";
     }
+
+
+
 }
