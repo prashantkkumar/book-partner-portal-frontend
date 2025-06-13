@@ -32,25 +32,31 @@ public class EmployeeController {
         return "employee";
     }
 
-    // ✅ Show the add form
     @GetMapping("/employees/add-form")
     public String showAddForm(Model model) {
         model.addAttribute("employee", new EmployeeDTO());
         return "add-employee";
     }
 
-    // ✅ Handle form submission for adding employee
+
     @PostMapping("/employees/add")
     public String addEmployee(@ModelAttribute("employee") EmployeeDTO employee) {
-        webClient.post()
-                .uri("/employees")
-                .body(Mono.just(employee), EmployeeDTO.class)
-                .retrieve()
-                .bodyToMono(Void.class)
-                .block();
+        try {
+            webClient.post()
+                    .uri("/employees")
+                    .bodyValue(employee)
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .block();
 
-        return "redirect:/employees/chaitanya";
+            return "redirect:/employees/chaitanya"; // ✅ This should redirect after successful addition
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "error"; // fallback view
+        }
     }
+
+
 
     // ✅ Show the edit form
     @GetMapping("/employees/edit/{id}")

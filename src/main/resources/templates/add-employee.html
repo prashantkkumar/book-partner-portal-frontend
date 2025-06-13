@@ -14,7 +14,9 @@
 <div class="container">
     <h2 class="mb-4">Add New Employee</h2>
     <form th:action="@{/employees/add}" th:object="${employee}" method="post">
-        <div class="mb-3">
+
+
+    <div class="mb-3">
             <label for="empId" class="form-label">Employee ID</label>
             <input type="text" th:field="*{empId}" class="form-control" id="empId" required>
         </div>
@@ -41,7 +43,18 @@
 
         <div class="mb-3">
             <label for="hireDate" class="form-label">Hire Date</label>
-            <input type="text" th:field="*{hireDate}" class="form-control" id="hireDate" required>
+            <input type="datetime-local" th:field="*{hireDate}" class="form-control" id="hireDate" required>
+        </div>
+
+        <!-- Optional fields if needed -->
+        <div class="mb-3">
+            <label for="jobId" class="form-label">Job ID</label>
+            <input type="number" th:field="*{jobId}" class="form-control" id="jobId">
+        </div>
+
+        <div class="mb-3">
+            <label for="pubId" class="form-label">Publisher ID</label>
+            <input type="text" th:field="*{pubId}" class="form-control" id="pubId">
         </div>
 
         <button type="submit" class="btn btn-success">Add Employee</button>
