@@ -32,8 +32,6 @@
         <option value="20">20</option>
         <option value="30">30</option>
       </select>
-
-      <a href="/sales/add" class="btn btn-success ms-3">+ Add Sale</a>
     </div>
   </div>
 
@@ -43,7 +41,6 @@
       <th>Order Date</th>
       <th>Quantity</th>
       <th>Pay Terms</th>
-      <th>Actions</th>
     </tr>
     </thead>
     <tbody id="salesTableBody">
@@ -57,9 +54,9 @@
 </div>
 
 <script th:inline="javascript">
-  /*<![CDATA[*/
-  const sales = /*[[${sales}]]*/ [];
-  /*]]>*/
+  /<![CDATA[/
+  const sales = /[[${sales}]]/ [];
+  /]]>/
 </script>
 
 <script>
@@ -76,7 +73,7 @@
   function updateEntriesInfo() {
     const start = filteredSales.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
     const end = Math.min(currentPage * pageSize, filteredSales.length);
-    entriesInfo.textContent = `Showing ${start} to ${end} of ${filteredSales.length} entries`;
+    entriesInfo.textContent = ⁠ Showing ${start} to ${end} of ${filteredSales.length} entries ⁠;
   }
 
   function renderTable() {
@@ -86,7 +83,6 @@
 
     if (pageItems.length === 0) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="4" class="text-center">No data available</td>`;
       tableBody.appendChild(tr);
     } else {
       pageItems.forEach(sale => {
@@ -96,9 +92,6 @@
           <td>${formattedDate}</td>
           <td>${sale.qty}</td>
           <td>${sale.payterms}</td>
-          <td>
-            <a href="/sales/edit?ordDate=${sale.ordDate}&storId=${sale.storId}&titleId=${sale.titleId}" class="btn btn-sm btn-outline-primary">Edit</a>
-          </td>
         `;
         tableBody.appendChild(tr);
       });

@@ -32,6 +32,10 @@ public class EmployeeController {
         return "employee";
     }
 
+    @GetMapping("/employee/chaitanya")
+    public String redirectToEmployeesChaitanya() {
+        return "redirect:/employees/chaitanya";
+    }
     @GetMapping("/employees/add-form")
     public String showAddForm(Model model) {
         model.addAttribute("employee", new EmployeeDTO());
