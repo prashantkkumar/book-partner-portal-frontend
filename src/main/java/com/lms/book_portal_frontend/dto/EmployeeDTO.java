@@ -1,24 +1,17 @@
 package com.lms.book_portal_frontend.dto;
 
-
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class EmployeeDTO {
 
-    private String empId;
-    private String fname;
-    private String minit;
-    private String lname;
-    private Integer jobLvl;
-    //    private String jobId;
-//    private String pubId;
-    private Instant hireDate;
+    private String empId;        // e.g., "A-C71970F"
+    private String fname;        // First name
+    private Character minit;     // Middle initial
+    private String lname;        // Last name
+    private Integer jobLvl;      // Job level (e.g., 3)
+    private String hireDate;    // Hire date and time
+    private Short jobId;         // Job ID (e.g., 10)
+    private String pubId;        // Publisher ID (e.g., "P001")
 }
