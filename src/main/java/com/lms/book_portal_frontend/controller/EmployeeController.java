@@ -16,7 +16,7 @@ import java.util.List;
 @Controller
 public class EmployeeController {
 
-    private final WebClient webClient = WebClient.create("http://13.233.193.166:9091/api");
+    private final WebClient webClient = WebClient.create("http://localhost:8081/api");
 
     // ✅ Show all employees
     @GetMapping("/employees/chaitanya")

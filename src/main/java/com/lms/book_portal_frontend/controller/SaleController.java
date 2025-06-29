@@ -18,7 +18,7 @@ public class SaleController {
     @Autowired
     private RestTemplate restTemplate;
 
-    private static final String API_BASE_URL = "http://13.233.193.166:9091/api/sales";
+    private static final String API_BASE_URL = "http://localhost:8081/api/sales";
 
 
     @GetMapping("/bhuvan")

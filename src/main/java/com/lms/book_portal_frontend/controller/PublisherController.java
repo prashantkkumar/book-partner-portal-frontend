@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PublisherController {
 
-    private final WebClient webClient = WebClient.create("http://13.233.193.166:9091/api");
+    private final WebClient webClient = WebClient.create("http://localhost:8081/api");
 
     @GetMapping("/publishers")
     public String getPublishers(Model model, @RequestParam(value = "keyword", required = false) String keyword) {

@@ -28,7 +28,7 @@ public class StoreController {
 
     @GetMapping("/store/naman")
     public String showStores(Model model) {
-        String apiUrl = "http://13.233.193.166:9091/api/stores";
+        String apiUrl = "http://localhost:8081/api/stores";
 
         // Fetch list of StoreDto using ParameterizedTypeReference
         List<StoreDto> stores = restTemplate.exchange(

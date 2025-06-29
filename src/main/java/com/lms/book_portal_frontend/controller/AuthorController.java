@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthorController {
 
-    private final WebClient webClient = WebClient.create("http://13.233.193.166:9091/api/");
+    private final WebClient webClient = WebClient.create("http://localhost:8081/api/");
 
     @GetMapping("/authors")
     public String getAuthors(Model model) {

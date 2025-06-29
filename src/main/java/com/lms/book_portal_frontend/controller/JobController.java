@@ -19,7 +19,7 @@ public class JobController {
     @Autowired
     private RestTemplate restTemplate;
 
-    private final String apiUrl = "http://13.233.193.166:9091/api/jobs";
+    private final String apiUrl = "http://localhost:8081/api/jobs";
 
     @GetMapping("/job/mohit")
     public String showJobs(

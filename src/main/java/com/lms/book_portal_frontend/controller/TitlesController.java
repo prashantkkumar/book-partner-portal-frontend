@@ -16,7 +16,7 @@ public class TitlesController {
     @Autowired
     private RestTemplate restTemplate;
 
-    private static final String BASE_URL = "http://13.233.193.166:9091/api";
+    private static final String BASE_URL = "http://localhost:8081/api";
 
     // Display title list
     @GetMapping
